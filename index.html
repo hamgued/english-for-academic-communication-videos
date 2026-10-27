@@ -462,16 +462,18 @@ var DATA = {"start": "<p>This coursebook teaches the core skills of academic com
     section('canvas','<h2>The Business Model Canvas</h2>'+
       '<p class="lead">The Business Model Canvas, created by Osterwalder and Pigneur (2010), describes any business idea in nine building blocks. Together they show how a business creates value, delivers it and earns money from it. Click a block to read about it.</p><p class="prose">The original book is available as an e-book in <a href="https://lut.primo.exlibrisgroup.com/nde/fulldisplay?query=Business%20Model%20Generation:%20A%20Handbook%20for%20Visionaries,%20Game%20Changers,%20and%20Challengers&amp;tab=Everything&amp;search_scope=LAB_CAMPUS_CDI&amp;classify=true&amp;lang=en&amp;vid=358FIN_LUT:LAB_NDE&amp;docid=alma991340245406254&amp;adaptor=Local%20Search%20Engine&amp;context=L&amp;isFrbr=false&amp;isHighlightedRecord=false&amp;state=#nui.getit.service_viewit" target="_blank" rel="noopener">LAB Primo</a>. To read it, sign in with your LAB account.</p>'+
       '<p class="prose" style="background:var(--lab-grey-light);border-left:4px solid var(--lab-teal);padding:10px 14px">The descriptions here are a short overview for learning, not an academic source. When you define these terms in academic writing, use scholarly sources and cite them (see Modules 2–4).</p>'+
-      '<div class="bmc">'+grid+'</div><div class="bmc-detail" id="bmc-detail" aria-live="polite"><p>Select a block to see its details.</p></div>'+
+      '<div class="bmc">'+grid+'</div>'+
       '<h3>Check your understanding</h3><div class="quiz-card panel" id="bmc-quiz"><button class="btn" type="button" id="bmc-start">Start the canvas quiz</button></div>');
-    function showB(n){
-      var d=DATA.canvas.blocks[n];
-      document.querySelectorAll('.bmc .blk').forEach(function(x){x.classList.toggle('active',x.dataset.blk===n);});
-      document.getElementById('bmc-detail').innerHTML='<h3>'+esc(n)+'</h3><p>'+esc(d.description)+'</p><div class="bmc-cols"><div><h4>Questions it answers</h4><ul>'+
+    var ORDER=LAY.map(function(l){return l[0];});
+    window.openCanvasBlock=function(i){
+      var n=ORDER[i], d=DATA.canvas.blocks[n];
+      document.getElementById('modal-crumb').textContent='The Business Model Canvas';
+      document.getElementById('modal-body').innerHTML='<h2 id="modal-title">'+esc(n)+'</h2><div class="prose"><p>'+esc(d.description)+'</p><div class="bmc-cols"><div><h4>Questions it answers</h4><ul>'+
         d.questions.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul><h4>Example</h4><p class="bmc-ex">'+esc(d.example)+'</p></div><div><h4>Useful vocabulary</h4><div class="chips">'+
-        d.vocab.map(function(v){return '<span>'+esc(v)+'</span>';}).join('')+'</div></div></div>';
-    }
-    document.addEventListener('click',function(e){var b=e.target.closest('.bmc .blk'); if(b) showB(b.dataset.blk);});
+        d.vocab.map(function(v){return '<span>'+esc(v)+'</span>';}).join('')+'</div></div></div></div>';
+      window.__openModal({canvas:true,i:i,last:ORDER.length-1});
+    };
+    document.addEventListener('click',function(e){var b=e.target.closest('.bmc .blk'); if(b) openCanvasBlock(ORDER.indexOf(b.dataset.blk));});
     var Q=DATA.canvas.quiz, i=0, s=0, box=null;
     function sh(a){for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=a[k];a[k]=a[j];a[j]=t;}return a;}
     function rq(){
@@ -562,6 +564,16 @@ var DATA = {"start": "<p>This coursebook teaches the core skills of academic com
   // Modal
   var modal = document.getElementById('item-modal');
   var cur = { m: null, i: 0 }, lastFocus = null;
+  window.__openModal = function (state) {
+    cur = state;
+    document.getElementById('modal-prev').disabled = state.i === 0;
+    document.getElementById('modal-next').disabled = state.i === state.last;
+    if (!modal.classList.contains('open')) { lastFocus = document.activeElement; }
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    modal.scrollTop = 0;
+    document.getElementById('modal-close').focus();
+  };
   function openItem(mn, i) {
     var m = DATA.modules[mn - 1], s = m.sections[i];
     cur = { m: mn, i: i };
@@ -584,8 +596,8 @@ var DATA = {"start": "<p>This coursebook teaches the core skills of academic com
     if (lastFocus) lastFocus.focus();
   }
   document.getElementById('modal-close').addEventListener('click', closeItem);
-  document.getElementById('modal-prev').addEventListener('click', function () { openItem(cur.m, cur.i - 1); });
-  document.getElementById('modal-next').addEventListener('click', function () { openItem(cur.m, cur.i + 1); });
+  document.getElementById('modal-prev').addEventListener('click', function () { if (cur.canvas) openCanvasBlock(cur.i - 1); else openItem(cur.m, cur.i - 1); });
+  document.getElementById('modal-next').addEventListener('click', function () { if (cur.canvas) openCanvasBlock(cur.i + 1); else openItem(cur.m, cur.i + 1); });
   modal.addEventListener('click', function (e) { if (e.target === modal) closeItem(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('open')) closeItem(); });
 
