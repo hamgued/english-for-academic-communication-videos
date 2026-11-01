@@ -528,7 +528,7 @@ DATA.warmup = [{"q": "What mainly makes a piece of writing academic?", "o": ["Cl
       return '<option value="' + m.n + '">Module ' + m.n + '. ' + esc(m.title) + ' (' + m.quiz.length + ')</option>';
     }).join('');
   section('quiz',
-    '<h2>Quiz</h2><p class="lead">Check your understanding. If you score below 80%, read the module again.</p>' +
+    '<h2>Quiz</h2><p class="lead">Check your understanding.</p>' +
     '<div class="quiz-setup"><label for="quiz-pick" style="position:absolute;left:-9999px">Choose a quiz</label>' +
     '<select id="quiz-pick">' + qOpts + '</select>' +
     '<button class="btn" id="quiz-start" type="button">Start quiz</button></div>' +
@@ -623,7 +623,7 @@ DATA.warmup = [{"q": "What mainly makes a piece of writing academic?", "o": ["Cl
       var pct = Math.round(score / qs.length * 100);
       card.innerHTML = '<p class="quiz-progress">Quiz complete</p>' +
         '<p class="score-big">' + score + ' / ' + qs.length + '</p>' +
-        '<p>' + pct + '% correct. ' + (pct >= 80 ? 'Well done. Move on to the next module.' : 'Read the module again, then retake the quiz.') + '</p>' +
+        '<p>' + pct + '% correct. ' + (function(){var k=document.getElementById('quiz-pick').value;if(k==='warm')return 'Every question is a topic in this course.';if(k==='all')return pct>=80?'Well done.':'Review the modules where you missed questions, then retake the quiz.';return pct>=80?'Well done. Move on to the next module.':'Read Module '+k+' again, then retake the quiz.';})() + '</p>' +
         '<div class="module-actions"><button class="btn" type="button" id="quiz-retry">Retake this quiz</button></div>';
       document.getElementById('quiz-retry').addEventListener('click', function () { startQuiz(); });
       return;
